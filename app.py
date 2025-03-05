@@ -41,6 +41,15 @@ API_TOKEN = "{{'{0}':'appuser'}}".format(os.getenv('API_TOKEN'))
 tokens = ast.literal_eval(API_TOKEN)
 
 
+# register a callback to verify the token
+@auth.verify_token  
+def verify_token(token):
+    if token in tokens:
+        return tokens[token]
+    else:
+        return None
+
+
 # Specify a generic SERVERS scheme for OpenAPI to allow both local testing
 # and deployment on Code Engine with configuration within Watson Assistant
 app.config['SERVERS'] = [
