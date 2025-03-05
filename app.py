@@ -162,6 +162,15 @@ def get_call_logs():
         "message": "Call logs retrieved successfully"
     })
 
+# default "homepage", also needed for health check by Code Engine
+@app.get('/')
+def print_default():
+    """ Greeting
+    health check
+    """
+    # returning a dict equals to use jsonify()
+    return {'message': 'This is the certifications API server'}
+
 # Main entry point
 if __name__ == '__main__':
     app.run(debug=True)
