@@ -124,7 +124,6 @@ def verify_token(token):
         logging.warning(f"Unauthorized token attempt: {token}")
         return None
 
-# Get all call logs
 @app.get('/call-logs')
 @app.auth_required(auth)
 def get_call_logs():
@@ -135,40 +134,41 @@ def get_call_logs():
         # Fetch data from Supabase
         response = supabase.table('Truworthstable').select('*').execute()
         
-        if response.status_code == 200:
-            # Convert Supabase results to CallLogModel
-            call_logs = [CallLogModel(item) for item in response.data]
-
-            # Create HTML table
-            table_html = "<table border='4'><tr><th>ID</th><th>Account No</th><th>Created At</th><th>Call Type</th>" \
-                         "<th>Sentiment</th><th>Audio Filename</th><th>Tone</th><th>Transcriptions</th></tr>"
-
-            for log in call_logs:
-                table_html += f"<tr>" \
-                              f"<td>{html.escape(str(log.id))}</td>" \
-                              f"<td>{html.escape(str(log.account_no))}</td>" \
-                              f"<td>{html.escape(str(log.created_at))}</td>" \
-                              f"<td>{html.escape(str(log.call_type))}</td>" \
-                              f"<td>{html.escape(str(log.sentiment_analysis))}</td>" \
-                              f"<td>{html.escape(str(log.audio_filename))}</td>" \
-                              f"<td>{html.escape(str(log.tone))}</td>" \
-                              f"<td>{html.escape(str(log.transcriptions))}</td>" \
-                              f"</tr>"
-
-            table_html += "</table>"
-
-            # Return response with table
-            return jsonify({
-                "table": table_html,
-                "call_logs": call_logs,
-                "message": "Call logs retrieved successfully"
-            })
-        else:
-            logging.error(f"Error retrieving data from Supabase: {response.status_code}")
+        # Check if there is an error in the response
+        if response.error:
+            logging.error(f"Error retrieving data from Supabase: {response.error.message}")
             return jsonify({
                 "message": "Error retrieving data from Supabase",
-                "error": response.status_code
+                "error": response.error.message
             })
+        
+        # Convert Supabase results to CallLogModel
+        call_logs = [CallLogModel(item) for item in response.data]
+
+        # Create HTML table
+        table_html = "<table border='4'><tr><th>ID</th><th>Account No</th><th>Created At</th><th>Call Type</th>" \
+                     "<th>Sentiment</th><th>Audio Filename</th><th>Tone</th><th>Transcriptions</th></tr>"
+
+        for log in call_logs:
+            table_html += f"<tr>" \
+                          f"<td>{html.escape(str(log.id))}</td>" \
+                          f"<td>{html.escape(str(log.account_no))}</td>" \
+                          f"<td>{html.escape(str(log.created_at))}</td>" \
+                          f"<td>{html.escape(str(log.call_type))}</td>" \
+                          f"<td>{html.escape(str(log.sentiment_analysis))}</td>" \
+                          f"<td>{html.escape(str(log.audio_filename))}</td>" \
+                          f"<td>{html.escape(str(log.tone))}</td>" \
+                          f"<td>{html.escape(str(log.transcriptions))}</td>" \
+                          f"</tr>"
+
+        table_html += "</table>"
+
+        # Return response with table
+        return jsonify({
+            "table": table_html,
+            "call_logs": call_logs,
+            "message": "Call logs retrieved successfully"
+        })
     
     except Exception as e:
         logging.error(f"An error occurred while fetching call logs: {str(e)}")
@@ -176,6 +176,7 @@ def get_call_logs():
             "message": "An unexpected error occurred",
             "error": str(e)
         })
+
 
 # Default "homepage", also needed for health check by Code Engine
 @app.get('/')
