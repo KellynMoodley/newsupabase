@@ -172,42 +172,14 @@ def get_call_logs():
             "error": str(e)
         })
 
-
+#Default "homepage", also needed for health check by Code Engine
 @app.get('/')
 def print_default():
     """ Greeting
-    Health check
-    """
-    try:
-        # Fetch call logs and create the table
-        response = supabase.table('Truworthstable').select('*').execute()
-
-        if response.error:
-            return jsonify({
-                "message": "Error retrieving data from Supabase",
-                "error": response.error.message
-            })
-
-        call_logs = [CallLogModel(item) for item in response.data]
-        table_html = create_html_table(call_logs)
-
-        return {'message': table_html}
-
-    except Exception as e:
-        logging.error(f"Error occurred while fetching call logs for homepage: {str(e)}")
-        return jsonify({
-            "message": "An unexpected error occurred",
-            "error": str(e)
-        })
-
-# Default "homepage", also needed for health check by Code Engine
-#@app.get('/')
-#def print_default():
-  #  """ Greeting
-  #  Health check
-  #  """
-  #  # Returning a dict equals to use jsonify()
-  #  return {'message': 'This is the certifications API server'}
+   Health check
+   """
+ Returning a dict equals to use jsonify()
+   return {'message': 'This is the certifications API server'}
 
 # Main entry point
 if __name__ == '__main__':
