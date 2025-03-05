@@ -5,7 +5,6 @@ from apiflask import APIFlask, Schema, HTTPTokenAuth, abort
 from apiflask.fields import Integer, String, DateTime
 from supabase import create_client, Client
 from flask import jsonify
-import html
 import logging
 
 # Configure the logging
@@ -40,6 +39,8 @@ API_TOKEN = "{{'{0}':'appuser'}}".format(os.getenv('API_TOKEN'))
 # Convert to dict
 tokens = ast.literal_eval(API_TOKEN)
 
+# Set how we want the authentication API key to be passed
+auth = HTTPTokenAuth(scheme='ApiKey', header='API_TOKEN')
 
 # register a callback to verify the token
 @auth.verify_token  
@@ -48,7 +49,6 @@ def verify_token(token):
         return tokens[token]
     else:
         return None
-
 
 # Specify a generic SERVERS scheme for OpenAPI to allow both local testing
 # and deployment on Code Engine with configuration within Watson Assistant
@@ -82,10 +82,6 @@ app.config['SERVERS'] = [
         }
     }
 ]
-
-# Set how we want the authentication API key to be passed
-auth = HTTPTokenAuth(scheme='ApiKey', header='API_TOKEN')
-
 
 class CallLogModel:
     def __init__(self, data):
@@ -150,27 +146,8 @@ def get_call_logs():
         # Convert Supabase results to CallLogModel and then to dictionaries
         call_logs = [CallLogModel(item).to_dict() for item in data]
 
-        # Create HTML table
-        table_html = "<table border='4'><tr><th>ID</th><th>Account No</th><th>Created At</th><th>Call Type</th>" \
-                     "<th>Sentiment</th><th>Audio Filename</th><th>Tone</th><th>Transcriptions</th></tr>"
-
-        for log in call_logs:
-            table_html += f"<tr>" \
-                          f"<td>{html.escape(str(log.get('id', '')))}</td>" \
-                          f"<td>{html.escape(str(log.get('account_no', '')))}</td>" \
-                          f"<td>{html.escape(str(log.get('created_at', '')))}</td>" \
-                          f"<td>{html.escape(str(log.get('call_type', '')))}</td>" \
-                          f"<td>{html.escape(str(log.get('sentiment_analysis', '')))}</td>" \
-                          f"<td>{html.escape(str(log.get('audio_filename', '')))}</td>" \
-                          f"<td>{html.escape(str(log.get('tone', '')))}</td>" \
-                          f"<td>{html.escape(str(log.get('transcriptions', '')))}</td>" \
-                          f"</tr>"
-
-        table_html += "</table>"
-
-        # Return response with table
+        # Return response with call logs
         return jsonify({
-            "table": table_html,
             "call_logs": call_logs,
             "message": "Call logs retrieved successfully"
         })
@@ -182,7 +159,6 @@ def get_call_logs():
             "error": str(e)
         }), 500
 
-
 @app.get('/')
 def print_default():
     """Greeting
@@ -190,7 +166,6 @@ def print_default():
     """
     # Returning a dict equals to using jsonify()
     return {'message': 'This is the certifications API server'}
-
 
 # Main entry point
 if __name__ == '__main__':
