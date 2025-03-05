@@ -188,14 +188,14 @@ def get_call_logs():
             "error": str(e)
         }), 500
 
-#Default "homepage", also needed for health check by Code Engine
 @app.get('/')
 def print_default():
-    """ Greeting
-   Health check
-   """
- #Returning a dict equals to use jsonify()
-   return {'message': 'This is the certifications API server'}
+    """Greeting
+    Health check
+    """
+    # Returning a dict equals to using jsonify()
+    return {'message': 'This is the certifications API server'}
+
 
 # Main entry point
 if __name__ == '__main__':
