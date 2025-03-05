@@ -78,7 +78,6 @@ app.config['SERVERS'] = [
 auth = HTTPTokenAuth(scheme='ApiKey', header='API_TOKEN')
 
 
-# Schema for Call Logs
 class CallLogModel:
     def __init__(self, data):
         self.id = data.get('id')
@@ -89,35 +88,21 @@ class CallLogModel:
         self.audio_filename = data.get('AUDIOFILENAME2')
         self.tone = data.get('tone')
         self.transcriptions = data.get('transcriptions')
-
-# The Python output for Call Logs
-class CallLogOutSchema(Schema):
-    id = Integer()
-    account_no = String()
-    created_at = DateTime()
-    call_type = String()
-    sentiment_analysis = String()
-    audio_filename = String()
-    tone = String()
-    transcriptions = String()
-
-# The Python input for Call Logs
-class CallLogInSchema(Schema):
-    account_no = String(required=True)
-    call_type = String(required=True)
-    sentiment_analysis = String(required=False, allow_none=True)
-    audio_filename = String(required=False, allow_none=True)
-    tone = String(required=False, allow_none=True)
-    transcriptions = String(required=False, allow_none=True)
-
-# Register a callback to verify the token
-@auth.verify_token  
-def verify_token(token):
-    if token in tokens:
-        return tokens[token]
-    else:
-        logging.warning(f"Unauthorized token attempt: {token}")
-        return None
+    
+    def to_dict(self):
+        """
+        Convert CallLogModel to a dictionary for JSON serialization
+        """
+        return {
+            'id': self.id,
+            'account_no': self.account_no,
+            'created_at': str(self.created_at),
+            'call_type': self.call_type,
+            'sentiment_analysis': self.sentiment_analysis,
+            'audio_filename': self.audio_filename,
+            'tone': self.tone,
+            'transcriptions': self.transcriptions
+        }
 
 @app.get('/call-logs')
 @app.auth_required(auth)
@@ -153,8 +138,8 @@ def get_call_logs():
                 "call_logs": []
             }), 404
 
-        # Convert Supabase results to CallLogModel
-        call_logs = [CallLogModel(item) for item in data]
+        # Convert Supabase results to CallLogModel and then to dictionaries
+        call_logs = [CallLogModel(item).to_dict() for item in data]
 
         # Create HTML table
         table_html = "<table border='4'><tr><th>ID</th><th>Account No</th><th>Created At</th><th>Call Type</th>" \
@@ -162,14 +147,14 @@ def get_call_logs():
 
         for log in call_logs:
             table_html += f"<tr>" \
-                          f"<td>{html.escape(str(log.id))}</td>" \
-                          f"<td>{html.escape(str(log.account_no))}</td>" \
-                          f"<td>{html.escape(str(log.created_at))}</td>" \
-                          f"<td>{html.escape(str(log.call_type))}</td>" \
-                          f"<td>{html.escape(str(log.sentiment_analysis))}</td>" \
-                          f"<td>{html.escape(str(log.audio_filename))}</td>" \
-                          f"<td>{html.escape(str(log.tone))}</td>" \
-                          f"<td>{html.escape(str(log.transcriptions))}</td>" \
+                          f"<td>{html.escape(str(log.get('id', '')))}</td>" \
+                          f"<td>{html.escape(str(log.get('account_no', '')))}</td>" \
+                          f"<td>{html.escape(str(log.get('created_at', '')))}</td>" \
+                          f"<td>{html.escape(str(log.get('call_type', '')))}</td>" \
+                          f"<td>{html.escape(str(log.get('sentiment_analysis', '')))}</td>" \
+                          f"<td>{html.escape(str(log.get('audio_filename', '')))}</td>" \
+                          f"<td>{html.escape(str(log.get('tone', '')))}</td>" \
+                          f"<td>{html.escape(str(log.get('transcriptions', '')))}</td>" \
                           f"</tr>"
 
         table_html += "</table>"
@@ -187,6 +172,7 @@ def get_call_logs():
             "message": "An unexpected error occurred",
             "error": str(e)
         }), 500
+
 
 @app.get('/')
 def print_default():
