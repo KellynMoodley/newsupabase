@@ -194,7 +194,7 @@ def print_default():
     """ Greeting
    Health check
    """
- Returning a dict equals to use jsonify()
+ #Returning a dict equals to use jsonify()
    return {'message': 'This is the certifications API server'}
 
 # Main entry point
