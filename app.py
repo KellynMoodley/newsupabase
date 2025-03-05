@@ -129,16 +129,32 @@ def get_call_logs():
         # Fetch data from Supabase
         response = supabase.table('Truworthstable').select('*').execute()
         
-        # Check if there is an error in the response
-        if response.error:
-            logging.error(f"Error retrieving data from Supabase: {response.error.message}")
+        # Check if response is None or doesn't have data
+        if response is None:
+            logging.error("No response received from Supabase")
             return jsonify({
-                "message": "Error retrieving data from Supabase",
-                "error": response.error.message
-            })
+                "message": "No data retrieved from Supabase",
+                "error": "Empty response"
+            }), 404
         
+        # In newer versions of supabase-py, data might be accessed differently
+        try:
+            # First try the current method
+            data = response.data
+        except AttributeError:
+            # If that fails, try accessing data directly
+            data = response
+
+        # Check if data is empty
+        if not data:
+            logging.warning("No call logs found in the database")
+            return jsonify({
+                "message": "No call logs found",
+                "call_logs": []
+            }), 404
+
         # Convert Supabase results to CallLogModel
-        call_logs = [CallLogModel(item) for item in response.data]
+        call_logs = [CallLogModel(item) for item in data]
 
         # Create HTML table
         table_html = "<table border='4'><tr><th>ID</th><th>Account No</th><th>Created At</th><th>Call Type</th>" \
@@ -170,7 +186,7 @@ def get_call_logs():
         return jsonify({
             "message": "An unexpected error occurred",
             "error": str(e)
-        })
+        }), 500
 
 #Default "homepage", also needed for health check by Code Engine
 @app.get('/')
