@@ -17,8 +17,15 @@ app = APIFlask(__name__, title=API_TITLE, version=API_VERSION)
 # load .env if present
 load_dotenv()
 
-SUPABASE_URL=https://azaciowvtzpbudilmvqz.supabase.co
-SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6YWNpb3d2dHpwYnVkaWxtdnF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMxMzM4MDIsImV4cCI6MjA0ODcwOTgwMn0.v4AVDi4Zk_obPeMygY-ODbvOI8tW7VV-o8V1T2WiNOI
+# Retrieve values from environment variables
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+
+# Check if the variables are loaded correctly
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("Supabase URL or key not found in environment variables!")
+
+# Create the Supabase client
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # the secret API key
