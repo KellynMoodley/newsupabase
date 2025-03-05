@@ -40,11 +40,6 @@ API_TOKEN = "{{'{0}':'appuser'}}".format(os.getenv('API_TOKEN'))
 # Convert to dict
 tokens = ast.literal_eval(API_TOKEN)
 
-# Optional table arguments, e.g., to set another table schema
-ENV_TABLE_ARGS = os.getenv('TABLE_ARGS')
-TABLE_ARGS = None
-if ENV_TABLE_ARGS:
-    TABLE_ARGS = ast.literal_eval(ENV_TABLE_ARGS)
 
 # Specify a generic SERVERS scheme for OpenAPI to allow both local testing
 # and deployment on Code Engine with configuration within Watson Assistant
