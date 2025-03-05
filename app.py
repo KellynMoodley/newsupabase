@@ -33,8 +33,56 @@ API_TOKEN = "{{'{0}':'appuser'}}".format(os.getenv('API_TOKEN'))
 #convert to dict:
 tokens = ast.literal_eval(API_TOKEN)
 
+# optional table arguments, e.g., to set another table schema
+ENV_TABLE_ARGS=os.getenv('TABLE_ARGS')
+TABLE_ARGS=None
+if ENV_TABLE_ARGS:
+    TABLE_ARGS=ast.literal_eval(ENV_TABLE_ARGS)
+
+
+# specify a generic SERVERS scheme for OpenAPI to allow both local testing
+# and deployment on Code Engine with configuration within Watson Assistant
+app.config['SERVERS'] = [
+    {
+        'description': 'Code Engine deployment',
+        'url': 'https://{appname}.{projectid}.{region}.codeengine.appdomain.cloud',
+        'variables':
+        {
+            "appname":
+            {
+                "default": "myapp",
+                "description": "application name"
+            },
+            "projectid":
+            {
+                "default": "projectid",
+                "description": "the Code Engine project ID"
+            },
+            "region":
+            {
+                "default": "us-south",
+                "description": "the deployment region, e.g., us-south"
+            }
+        }
+    },
+    {
+        'description': 'local test',
+        'url': 'http://127.0.0.1:{port}',
+        'variables':
+        {
+            'port':
+            {
+                'default': "5000",
+                'description': 'local port to use'
+            }
+        }
+    }
+]
+
+
 # set how we want the authentication API key to be passed
-auth = HTTPTokenAuth(scheme='ApiKey', header='API_TOKEN')
+auth=HTTPTokenAuth(scheme='ApiKey', header='API_TOKEN')
+
 
 # Schema for Call Logs
 class CallLogModel:
