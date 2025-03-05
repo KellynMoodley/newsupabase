@@ -24,7 +24,7 @@ RUN python -m venv /venv
 
 # Install Python deps
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -v -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 
 # Actual container
