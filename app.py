@@ -2,14 +2,14 @@ import os
 import ast
 from dotenv import load_dotenv
 from apiflask import APIFlask, Schema, HTTPTokenAuth, abort
-from apiflask.fields import Integer, String, DateTime, List, Nested
+from apiflask.fields import Integer, String, DateTime
 from supabase import create_client, Client
 from flask import jsonify
 import html
 
 # Set how this API should be titled and the current version
-API_TITLE='Call Logs API for Watson Assistant'
-API_VERSION='1.0.1'
+API_TITLE = 'Call Logs API for Watson Assistant'
+API_VERSION = '1.0.1'
 
 # create the app
 app = APIFlask(__name__, title=API_TITLE, version=API_VERSION)
@@ -29,12 +29,12 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # the secret API key
-API_TOKEN="{{'{0}':'appuser'}}".format(os.getenv('API_TOKEN'))
+API_TOKEN = "{{'{0}':'appuser'}}".format(os.getenv('API_TOKEN'))
 #convert to dict:
-tokens=ast.literal_eval(API_TOKEN)
+tokens = ast.literal_eval(API_TOKEN)
 
 # set how we want the authentication API key to be passed
-auth=HTTPTokenAuth(scheme='ApiKey', header='API_TOKEN')
+auth = HTTPTokenAuth(scheme='ApiKey', header='API_TOKEN')
 
 # Schema for Call Logs
 class CallLogModel:
@@ -113,69 +113,6 @@ def get_call_logs():
         "call_logs": call_logs,
         "message": "Call logs retrieved successfully"
     })
-
-# Create a new call log
-@app.post('/call-logs')
-@app.input(CallLogInSchema)
-@app.output(CallLogOutSchema)
-@app.auth_required(auth)
-def create_call_log(data):
-    """
-    Create a new call log entry
-    """
-    # Insert into Supabase
-    response = supabase.table('call_logs').insert(data).execute()
-    
-    # Return the created log
-    return response.data[0]
-
-# Get a specific call log by ID
-@app.get('/call-logs/<int:log_id>')
-@app.output(CallLogOutSchema)
-@app.auth_required(auth)
-def get_call_log(log_id):
-    """
-    Retrieve a specific call log by its ID
-    """
-    # Fetch from Supabase
-    response = supabase.table('call_logs').select('*').eq('id', log_id).execute()
-    
-    if not response.data:
-        abort(404, message="Call log not found")
-    
-    return response.data[0]
-
-# Update a call log
-@app.put('/call-logs/<int:log_id>')
-@app.input(CallLogInSchema)
-@app.output(CallLogOutSchema)
-@app.auth_required(auth)
-def update_call_log(log_id, data):
-    """
-    Update an existing call log
-    """
-    # Update in Supabase
-    response = supabase.table('call_logs').update(data).eq('id', log_id).execute()
-    
-    if not response.data:
-        abort(404, message="Call log not found")
-    
-    return response.data[0]
-
-# Delete a call log
-@app.delete('/call-logs/<int:log_id>')
-@app.auth_required(auth)
-def delete_call_log(log_id):
-    """
-    Delete a call log by its ID
-    """
-    # Delete from Supabase
-    response = supabase.table('call_logs').delete().eq('id', log_id).execute()
-    
-    if not response.data:
-        abort(404, message="Call log not found")
-    
-    return jsonify({"message": "Call log deleted successfully"})
 
 # Main entry point
 if __name__ == '__main__':
