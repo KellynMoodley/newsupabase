@@ -17,28 +17,26 @@ app = APIFlask(__name__, title=API_TITLE, version=API_VERSION)
 # load .env if present
 load_dotenv()
 
-# Retrieve values from environment variables
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+# Load Supabase URL and API Key from environment variables
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-# Check if the variables are loaded correctly
 if not SUPABASE_URL or not SUPABASE_KEY:
-    raise ValueError("Supabase URL or key not found in environment variables!")
-
-# Create the Supabase client
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    print("Error: Missing Supabase URL or Key in .env")
+else:
+    # Create the Supabase client
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # the secret API key
 API_TOKEN = "{{'{0}':'appuser'}}".format(os.getenv('API_TOKEN'))
-#convert to dict:
+# Convert to dict
 tokens = ast.literal_eval(API_TOKEN)
 
 # optional table arguments, e.g., to set another table schema
-ENV_TABLE_ARGS=os.getenv('TABLE_ARGS')
-TABLE_ARGS=None
+ENV_TABLE_ARGS = os.getenv('TABLE_ARGS')
+TABLE_ARGS = None
 if ENV_TABLE_ARGS:
-    TABLE_ARGS=ast.literal_eval(ENV_TABLE_ARGS)
-
+    TABLE_ARGS = ast.literal_eval(ENV_TABLE_ARGS)
 
 # specify a generic SERVERS scheme for OpenAPI to allow both local testing
 # and deployment on Code Engine with configuration within Watson Assistant
@@ -46,20 +44,16 @@ app.config['SERVERS'] = [
     {
         'description': 'Code Engine deployment',
         'url': 'https://{appname}.{projectid}.{region}.codeengine.appdomain.cloud',
-        'variables':
-        {
-            "appname":
-            {
+        'variables': {
+            "appname": {
                 "default": "myapp",
                 "description": "application name"
             },
-            "projectid":
-            {
+            "projectid": {
                 "default": "projectid",
                 "description": "the Code Engine project ID"
             },
-            "region":
-            {
+            "region": {
                 "default": "us-south",
                 "description": "the deployment region, e.g., us-south"
             }
@@ -68,10 +62,8 @@ app.config['SERVERS'] = [
     {
         'description': 'local test',
         'url': 'http://127.0.0.1:{port}',
-        'variables':
-        {
-            'port':
-            {
+        'variables': {
+            'port': {
                 'default': "5000",
                 'description': 'local port to use'
             }
@@ -79,9 +71,8 @@ app.config['SERVERS'] = [
     }
 ]
 
-
 # set how we want the authentication API key to be passed
-auth=HTTPTokenAuth(scheme='ApiKey', header='API_TOKEN')
+auth = HTTPTokenAuth(scheme='ApiKey', header='API_TOKEN')
 
 
 # Schema for Call Logs
@@ -134,33 +125,39 @@ def get_call_logs():
     # Fetch data from Supabase
     response = supabase.table('Truworthstable').select('*').execute()
     
-    # Convert Supabase results to CallLogModel
-    call_logs = [CallLogModel(item) for item in response.data]
+    if response.status_code == 200:
+        # Convert Supabase results to CallLogModel
+        call_logs = [CallLogModel(item) for item in response.data]
 
-    # Create HTML table
-    table_html = "<table border='4'><tr><th>ID</th><th>Account No</th><th>Created At</th><th>Call Type</th>" \
-                 "<th>Sentiment</th><th>Audio Filename</th><th>Tone</th><th>Transcriptions</th></tr>"
+        # Create HTML table
+        table_html = "<table border='4'><tr><th>ID</th><th>Account No</th><th>Created At</th><th>Call Type</th>" \
+                     "<th>Sentiment</th><th>Audio Filename</th><th>Tone</th><th>Transcriptions</th></tr>"
 
-    for log in call_logs:
-        table_html += f"<tr>" \
-                      f"<td>{html.escape(str(log.id))}</td>" \
-                      f"<td>{html.escape(str(log.account_no))}</td>" \
-                      f"<td>{html.escape(str(log.created_at))}</td>" \
-                      f"<td>{html.escape(str(log.call_type))}</td>" \
-                      f"<td>{html.escape(str(log.sentiment_analysis))}</td>" \
-                      f"<td>{html.escape(str(log.audio_filename))}</td>" \
-                      f"<td>{html.escape(str(log.tone))}</td>" \
-                      f"<td>{html.escape(str(log.transcriptions))}</td>" \
-                      f"</tr>"
-    
-    table_html += "</table>"
+        for log in call_logs:
+            table_html += f"<tr>" \
+                          f"<td>{html.escape(str(log.id))}</td>" \
+                          f"<td>{html.escape(str(log.account_no))}</td>" \
+                          f"<td>{html.escape(str(log.created_at))}</td>" \
+                          f"<td>{html.escape(str(log.call_type))}</td>" \
+                          f"<td>{html.escape(str(log.sentiment_analysis))}</td>" \
+                          f"<td>{html.escape(str(log.audio_filename))}</td>" \
+                          f"<td>{html.escape(str(log.tone))}</td>" \
+                          f"<td>{html.escape(str(log.transcriptions))}</td>" \
+                          f"</tr>"
 
-    # Return response with table
-    return jsonify({
-        "table": table_html,
-        "call_logs": call_logs,
-        "message": "Call logs retrieved successfully"
-    })
+        table_html += "</table>"
+
+        # Return response with table
+        return jsonify({
+            "table": table_html,
+            "call_logs": call_logs,
+            "message": "Call logs retrieved successfully"
+        })
+    else:
+        return jsonify({
+            "message": "Error retrieving data from Supabase",
+            "error": response.status_code
+        })
 
 # default "homepage", also needed for health check by Code Engine
 @app.get('/')
