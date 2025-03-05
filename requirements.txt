@@ -1,14 +1,10 @@
-# To ensure app dependencies are ported from your virtual environment/host machine into your container, run 'pip freeze > requirements.txt' in the terminal to overwrite this file
+# Core Flask and API dependencies
 APIFlask==1.0.0
 apispec==5.2.2
 click==8.1.3
 Flask==2.1.2
-Flask-HTTPAuth==4.7.0
 flask-marshmallow==0.14.0
-Flask-SQLAlchemy==2.5.1
 gunicorn==20.1.0
-ibm-db==3.1.1
-ibm-db-sa==0.3.8
 itsdangerous==2.1.2
 Jinja2==3.1.2
 MarkupSafe==2.1.1
@@ -17,6 +13,20 @@ packaging==21.3
 pyparsing==3.0.9
 python-dotenv==0.20.0
 six==1.16.0
-SQLAlchemy==1.3.22
-webargs==8.1.0
 Werkzeug==2.1.2
+
+# Supabase and related dependencies
+supabase==1.0.3
+postgrest==0.10.3
+gotrue==1.1.0
+realtime==1.0.1
+
+# Additional helpful libraries
+python-dateutil==2.8.2
+html5lib==1.1
+
+# If you need type hinting
+typing-extensions==4.5.0
+
+# Optional: for more robust environment variable management
+environs==9.5.0
