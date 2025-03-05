@@ -109,21 +109,28 @@ class CallLogModel:
             'transcriptions': self.transcriptions
         }
 
-@app.get('/call-logs')
+# Add a new route to get call logs by account number
+@app.get('/call-logs/<account_number>')
 @app.auth_required(auth)
-def get_call_logs():
+def get_call_logs_by_account(account_number):
     """
-    Retrieve all call logs
+    Retrieve call logs for a specific account number
+    
+    :param account_number: The account number to filter call logs
+    :return: JSON response with call logs for the specified account
     """
     try:
-        # Fetch data from Supabase
-        response = supabase.table('Truworthstable').select('*').execute()
+        # Fetch data from Supabase filtered by account number
+        response = supabase.table('Truworthstable') \
+            .select('*') \
+            .eq('Account_no', account_number) \
+            .execute()
         
         # Check if response is None or doesn't have data
         if response is None:
-            logging.error("No response received from Supabase")
+            logging.error(f"No response received from Supabase for account {account_number}")
             return jsonify({
-                "message": "No data retrieved from Supabase",
+                "message": f"No data retrieved for account {account_number}",
                 "error": "Empty response"
             }), 404
         
@@ -137,9 +144,9 @@ def get_call_logs():
 
         # Check if data is empty
         if not data:
-            logging.warning("No call logs found in the database")
+            logging.warning(f"No call logs found for account {account_number}")
             return jsonify({
-                "message": "No call logs found",
+                "message": f"No call logs found for account {account_number}",
                 "call_logs": []
             }), 404
 
@@ -148,16 +155,18 @@ def get_call_logs():
 
         # Return response with call logs
         return jsonify({
+            "account_number": account_number,
             "call_logs": call_logs,
-            "message": "Call logs retrieved successfully"
+            "message": f"Call logs retrieved successfully for account {account_number}"
         })
     
     except Exception as e:
-        logging.error(f"An error occurred while fetching call logs: {str(e)}")
+        logging.error(f"An error occurred while fetching call logs for account {account_number}: {str(e)}")
         return jsonify({
             "message": "An unexpected error occurred",
             "error": str(e)
         }), 500
+
 
 @app.get('/')
 def print_default():
