@@ -13,3 +13,6 @@ pyparsing==3.0.9
 python-dotenv==0.20.0
 six==1.16.0
 werkzeug==2.1.0  # Upgrade Werkzeug to a version compatible with Flask 2.1.2
+# Supabase and data handling
+supabase==2.1.0
+postgrest>=0.10.8,<0.14.0
