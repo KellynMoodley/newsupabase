@@ -109,28 +109,27 @@ class CallLogModel:
             'transcriptions': self.transcriptions
         }
 
-# Add a new route to get call logs by account number
-@app.get('/call-logs/<account_number>')
+@app.get('/most-recent-account')
 @app.auth_required(auth)
-def get_call_logs_by_account(account_number):
+def get_most_recent_account():
     """
-    Retrieve call logs for a specific account number
+    Retrieve the account number with the most recent created_at timestamp
     
-    :param account_number: The account number to filter call logs
-    :return: JSON response with call logs for the specified account
+    :return: JSON response with the most recent account number
     """
     try:
-        # Fetch data from Supabase filtered by account number
+        # Fetch data from Supabase, ordered by created_at in descending order and limited to 1
         response = supabase.table('Truworthstable') \
-            .select('*') \
-            .eq('Account_no', account_number) \
+            .select('Account_no, created_at') \
+            .order('created_at', desc=True) \
+            .limit(1) \
             .execute()
         
         # Check if response is None or doesn't have data
         if response is None:
-            logging.error(f"No response received from Supabase for account {account_number}")
+            logging.error("No response received from Supabase")
             return jsonify({
-                "message": f"No data retrieved for account {account_number}",
+                "message": "No data retrieved",
                 "error": "Empty response"
             }), 404
         
@@ -144,24 +143,22 @@ def get_call_logs_by_account(account_number):
 
         # Check if data is empty
         if not data:
-            logging.warning(f"No call logs found for account {account_number}")
+            logging.warning("No accounts found")
             return jsonify({
-                "message": f"No call logs found for account {account_number}",
-                "call_logs": []
+                "message": "No accounts found",
+                "most_recent_account": None
             }), 404
 
-        # Convert Supabase results to CallLogModel and then to dictionaries
-        call_logs = [CallLogModel(item).to_dict() for item in data]
-
-        # Return response with call logs
+        # Extract the most recent account number and its timestamp
+        most_recent = data[0]
         return jsonify({
-            "account_number": account_number,
-            "call_logs": call_logs,
-            "message": f"Call logs retrieved successfully for account {account_number}"
+            "account_number": most_recent['Account_no'],
+            "created_at": str(most_recent['created_at']),
+            "message": "Most recent account retrieved successfully"
         })
     
     except Exception as e:
-        logging.error(f"An error occurred while fetching call logs for account {account_number}: {str(e)}")
+        logging.error(f"An error occurred while fetching the most recent account: {str(e)}")
         return jsonify({
             "message": "An unexpected error occurred",
             "error": str(e)
