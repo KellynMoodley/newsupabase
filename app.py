@@ -132,7 +132,7 @@ def get_call_logs():
     Retrieve all call logs
     """
     # Fetch data from Supabase
-    response = supabase.table('call_logs').select('*').execute()
+    response = supabase.table('Truworthstable').select('*').execute()
     
     # Convert Supabase results to CallLogModel
     call_logs = [CallLogModel(item) for item in response.data]
