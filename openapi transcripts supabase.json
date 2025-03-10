@@ -1,0 +1,277 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Call Logs API for Watson Assistant",
+        "version": "1.0.1",
+        "description": "An API for retrieving call logs from a Supabase database"
+    },
+    "servers": [
+        {
+            "description": "Code Engine deployment",
+            "url": "https://{appname}.{projectid}.{region}.codeengine.appdomain.cloud",
+            "variables": {
+                "appname": {
+                    "default": "myapp",
+                    "description": "application name"
+                },
+                "projectid": {
+                    "default": "projectid", 
+                    "description": "the Code Engine project ID"
+                },
+                "region": {
+                    "default": "us-south",
+                    "description": "the deployment region, e.g., us-south"
+                }
+            }
+        },
+        {
+            "description": "local test",
+            "url": "http://127.0.0.1:{port}",
+            "variables": {
+                "port": {
+                    "default": "5000",
+                    "description": "local port to use"
+                }
+            }
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "API_TOKEN",
+                "description": "API key for authentication"
+            }
+        },
+        "schemas": {
+            "CallLog": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "Unique identifier for the call log"
+                    },
+                    "account_no": {
+                        "type": "string",
+                        "description": "Account number associated with the call"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp when the call log was created"
+                    },
+                    "call_type": {
+                        "type": "string",
+                        "description": "Type of call"
+                    },
+                    "sentiment_analysis": {
+                        "type": "string",
+                        "description": "Sentiment analysis of the call"
+                    },
+                    "audio_filename": {
+                        "type": "string",
+                        "description": "Filename of the recorded audio"
+                    },
+                    "tone": {
+                        "type": "string",
+                        "description": "Tone of the call"
+                    },
+                    "transcriptions": {
+                        "type": "string",
+                        "description": "Transcriptions of the call"
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Returns a greeting and confirms the API is running",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This is the certifications API server"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/call-logs": {
+            "get": {
+                "summary": "Retrieve Call Logs",
+                "description": "Fetches all call logs from the Supabase database",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved call logs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "call_logs": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CallLog"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Call logs retrieved successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No call logs found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No call logs found"
+                                        },
+                                        "call_logs": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An unexpected error occurred"
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/call-logs/{account_number}": {
+            "get": {
+                "summary": "Retrieve Call Logs by Account Number",
+                "description": "Fetches call logs for a specific account number from the Supabase database",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "account_number",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The account number to retrieve call logs for"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved call logs for the specified account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "account_number": {
+                                            "type": "string",
+                                            "description": "The account number queried"
+                                        },
+                                        "call_logs": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CallLog"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Call logs retrieved successfully for account {account_number}"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No call logs found for the specified account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No call logs found for account {account_number}"
+                                        },
+                                        "call_logs": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An unexpected error occurred"
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
