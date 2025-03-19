@@ -5,6 +5,7 @@ from apiflask import APIFlask, Schema, HTTPTokenAuth, abort
 from apiflask.fields import Integer, String, DateTime
 from supabase import create_client, Client
 from flask import jsonify
+from flask import escape
 import logging
 
 # Configure the logging
@@ -253,7 +254,8 @@ def get_call_bi(customfield03):
             "error": str(e)
         }), 500
 
-# New consolidated endpoint to get all data for an account number, using relational link
+from flask import escape  # Import the escape function
+
 @app.get('/account-consolidated/<account_number>')
 @app.auth_required(auth)
 def get_account_consolidated(account_number):
@@ -304,6 +306,36 @@ def get_account_consolidated(account_number):
                 
             if bi_data:
                 call_bi_data = [CallBIModel(item).to_dict() for item in bi_data]
+
+        # Generate HTML table
+        table_html = """
+        <h4 style='font-size: 16px; font-weight: bold; margin-bottom: 5px;'>Call BI Data</h4>
+        <table style='border-collapse: collapse; margin-bottom: 50px; width: 100%;'>
+        <tr>
+            <th style='border: 1px solid pink; padding: 8px;'>Call Type</th>
+            <th style='border: 1px solid pink; padding: 8px;'>AI Recommendations</th>
+            <th style='border: 1px solid pink; padding: 8px;'>Negligence</th>
+            <th style='border: 1px solid pink; padding: 8px;'>Past Call Summary</th>
+            <th style='border: 1px solid pink; padding: 8px;'>Call Strategy</th>
+            <th style='border: 1px solid pink; padding: 8px;'>Sentiment Analysis</th>
+            <th style='border: 1px solid pink; padding: 8px;'>Tone</th>
+        </tr>
+        """
+        
+        for call in call_bi_data:
+            table_html += f"""
+            <tr>
+                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['calltype_value'])}</td>
+                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['ai_recommendations'])}</td>
+                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['negligence'])}</td>
+                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['pastcallsummary'])}</td>
+                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['call_strategy'])}</td>
+                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['sentiment_analysis'])}</td>
+                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['tone'])}</td>
+            </tr>
+            """
+        
+        table_html += "</table>"
         
         # Return consolidated response
         return jsonify({
@@ -311,6 +343,7 @@ def get_account_consolidated(account_number):
             "account_details": account_detail.to_dict(),
             "call_bi_data": call_bi_data,
             "call_inum": call_inum,
+            "table": table_html,
             "message": f"Consolidated data retrieved successfully for account {account_number}"
         })
     
