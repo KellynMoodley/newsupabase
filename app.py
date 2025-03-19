@@ -308,22 +308,11 @@ def get_account_consolidated(account_number):
                 call_bi_data = [CallBIModel(item).to_dict() for item in bi_data]
 
         # Generate HTML table
-        table_html = """
-        <h4 style='font-size: 16px; font-weight: bold; margin-bottom: 5px;'>Call BI Data</h4>
-        <table style='border-collapse: collapse; margin-bottom: 50px; width: 100%;'>
-        <tr>
-            <th style='border: 1px solid pink; padding: 8px;'>Call Type</th>
-            <th style='border: 1px solid pink; padding: 8px;'>AI Recommendations</th>
-            <th style='border: 1px solid pink; padding: 8px;'>Negligence</th>
-            <th style='border: 1px solid pink; padding: 8px;'>Past Call Summary</th>
-            <th style='border: 1px solid pink; padding: 8px;'>Call Strategy</th>
-            <th style='border: 1px solid pink; padding: 8px;'>Sentiment Analysis</th>
-            <th style='border: 1px solid pink; padding: 8px;'>Tone</th>
-        </tr>
-        """
+        table_html = f"<h4 style='font-size: 16px; font-weight: bold; margin-bottom: 5px;'>AI analysis</h4>"
+        table_html += "<table style='border-collapse: collapse; margin-bottom: 50px; width: 100%;'><tr><th style='border: 1px solid pink; padding: 8px;'>Call Type</th><th style='border: 1px solid pink; padding: 8px;'>AI Recommendations</th><th style='border: 1px solid pink; padding: 8px;'>Negligence</th><th style='border: 1px solid pink; padding: 8px;'>Past Call Summary</th><th style='border: 1px solid pink; padding: 8px;'>Call Strategy</th><th style='border: 1px solid pink; padding: 8px;'>Sentiment Analysis</th><th style='border: 1px solid pink; padding: 8px;'>Tone</th></tr>"
         
         for call in call_bi_data:
-            table_html += f"""
+            table_html += f"
             <tr>
                 <td style='border: 1px solid pink; padding: 8px;'>{escape(call['calltype_value'])}</td>
                 <td style='border: 1px solid pink; padding: 8px;'>{escape(call['ai_recommendations'])}</td>
@@ -333,7 +322,7 @@ def get_account_consolidated(account_number):
                 <td style='border: 1px solid pink; padding: 8px;'>{escape(call['sentiment_analysis'])}</td>
                 <td style='border: 1px solid pink; padding: 8px;'>{escape(call['tone'])}</td>
             </tr>
-            """
+            "
         
         table_html += "</table>"
         
