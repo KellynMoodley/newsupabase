@@ -137,29 +137,29 @@ class CallBIModel:
         self.tone = data.get('tone')
     
     def to_dict(self):
-    """
-    Convert CallBIModel to a dictionary for JSON serialization
-    """
-    # Helper function to format text with line breaks
-    def format_text(text):
-      if text:
-        # Replace periods with period + newline, but preserve existing line breaks
-        formatted = text.replace('. ', '.\n')
-        # Make sure existing line breaks are preserved (don't add extra line breaks)
-        formatted = formatted.replace('\n\n', '\n').replace('\n\n', '\n')
-        return formatted
-      return text
-    
-    return {
-        'customfield03': self.customfield03,
-        'calltype_value': self.calltype_value,
-        'ai_recommendations': format_text(self.ai_recommendations),
-        'negligence': format_text(self.negligence),
-        'pastcallsummary': format_text(self.pastcallsummary),
-        'call_strategy': format_text(self.call_strategy),
-        'sentiment_analysis': self.sentiment_analysis,
-        'tone': format_text(self.tone)
-    }
+        """
+        Convert CallBIModel to a dictionary for JSON serialization
+        """
+        # Helper function to format text with line breaks
+        def format_text(text):
+            if text:
+                # Replace periods with period + newline, but preserve existing line breaks
+                formatted = text.replace('. ', '.\n')
+                # Make sure existing line breaks are preserved (don't add extra line breaks)
+                formatted = formatted.replace('\n\n', '\n').replace('\n\n', '\n')
+                return formatted
+            return text
+        
+        return {
+            'customfield03': self.customfield03,
+            'calltype_value': self.calltype_value,
+            'ai_recommendations': format_text(self.ai_recommendations),
+            'negligence': format_text(self.negligence),
+            'pastcallsummary': format_text(self.pastcallsummary),
+            'call_strategy': format_text(self.call_strategy),
+            'sentiment_analysis': self.sentiment_analysis,
+            'tone': format_text(self.tone)
+        }
 
 # New endpoint to get account details by account number
 @app.get('/account-details/<account_number>')
