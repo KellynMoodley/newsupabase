@@ -86,7 +86,7 @@ app.config['SERVERS'] = [
 class AccountDetailModel:
     def __init__(self, data):
         self.account_no = data.get('Account_no')
-        self.call_inum = data.get('CALL_INUM')  # Added CALL_INUM field
+        self.call_inum = data.get('Call_INUM')  # Added CALL_INUM field
         self.collections_segment_detail = data.get('Collections_Segment_Detail')
         self.ptp_ind = data.get('PTP_Ind')
         self.date_last_payment = data.get('Date_Last_Payment')
@@ -311,68 +311,6 @@ def get_account_consolidated(account_number):
             "error": str(e)
         }), 500
 
-# Add an endpoint that allows bi-directional lookup - find account by CUSTOMFIELD03
-@app.get('/account-by-callid/<call_id>')
-@app.auth_required(auth)
-def get_account_by_callid(call_id):
-    """
-    Retrieve account details by finding where CALL_INUM matches the provided call_id
-    
-    :param call_id: The call ID (CALL_INUM/CUSTOMFIELD03) to search for
-    :return: JSON response with account details and related call BI data
-    """
-    try:
-        # Find account details where CALL_INUM matches the call_id
-        account_response = supabase.table('Truworthsaccountdetails') \
-            .select('*') \
-            .eq('CALL_INUM', call_id) \
-            .execute()
-            
-        try:
-            account_data = account_response.data
-        except AttributeError:
-            account_data = account_response
-        
-        # Check if we found an account
-        if not account_data:
-            logging.warning(f"No account found with CALL_INUM {call_id}")
-            return jsonify({
-                "message": f"No account found with CALL_INUM {call_id}",
-                "account_details": None,
-                "call_bi_data": []
-            }), 404
-            
-        # Found account details
-        account_detail = AccountDetailModel(account_data[0])
-        
-        # Get related call BI data
-        call_bi_response = supabase.table('TruworthscallBI') \
-            .select('*') \
-            .eq('CUSTOMFIELD03', call_id) \
-            .execute()
-            
-        try:
-            bi_data = call_bi_response.data
-        except AttributeError:
-            bi_data = call_bi_response
-            
-        call_bi_data = [CallBIModel(item).to_dict() for item in bi_data] if bi_data else []
-        
-        # Return response with both pieces of data
-        return jsonify({
-            "account_number": account_detail.account_no,
-            "call_id": call_id,
-            "account_details": account_detail.to_dict(),
-            "call_bi_data": call_bi_data,
-            "message": f"Account and call BI data retrieved successfully for call ID {call_id}"
-        })
-    
-    except Exception as e:
-        logging.error(f"An error occurred while fetching data for call ID {call_id}: {str(e)}")
-        return jsonify({
-            "message": "An unexpected error occurred",
-            "error": str(e)
-        }), 500
 
 @app.get('/')
 def print_default():
