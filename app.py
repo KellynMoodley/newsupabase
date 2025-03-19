@@ -257,7 +257,6 @@ def get_call_bi(customfield03):
             "error": str(e)
         }), 500
 
-from flask import escape  # Import the escape function
 
 @app.get('/account-consolidated/<account_number>')
 @app.auth_required(auth)
@@ -312,17 +311,27 @@ def get_account_consolidated(account_number):
 
         # Generate HTML table
         table_html = f"<h4 style='font-size: 16px; font-weight: bold; margin-bottom: 5px;'>AI analysis</h4>"
-        table_html += "<table style='border-collapse: collapse; margin-bottom: 50px; width: 100%;'><tr><th style='border: 1px solid pink; padding: 8px;'>Call Type</th><th style='border: 1px solid pink; padding: 8px;'>AI Recommendations</th><th style='border: 1px solid pink; padding: 8px;'>Negligence</th><th style='border: 1px solid pink; padding: 8px;'>Past Call Summary</th><th style='border: 1px solid pink; padding: 8px;'>Call Strategy</th><th style='border: 1px solid pink; padding: 8px;'>Sentiment Analysis</th><th style='border: 1px solid pink; padding: 8px;'>Tone</th></tr>"
-        
+        table_html += "<table style='border-collapse: collapse; margin-bottom: 50px; width: 100%;'>"
+        table_html += "<tr><th style='border: 1px solid pink; padding: 8px;'>Field</th><th style='border: 1px solid pink; padding: 8px;'>Value</th></tr>"
+
+        # Define the fields to display
+        fields = [
+            ("Call Type", "calltype_value"),
+            ("AI Recommendations", "ai_recommendations"),
+            ("Negligence", "negligence"),
+            ("Past Call Summary", "pastcallsummary"),
+            ("Call Strategy", "call_strategy"),
+            ("Sentiment Analysis", "sentiment_analysis"),
+            ("Tone", "tone")
+        ]
+
+        # Loop through each call in call_bi_data
         for call in call_bi_data:
-            table_html += f"<tr><td style='border: 1px solid pink; padding: 8px;'>{html.escape(call['calltype_value'])}</td>" \
-                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call['ai_recommendations'])}</td>" \
-                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call['negligence'])}</td>" \
-                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call['pastcallsummary'])}</td>" \
-                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call['call_strategy'])}</td>" \
-                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call['sentiment_analysis'])}</td>" \
-                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call['tone'])}</td></tr>"
-        
+            for field_name, field_key in fields:
+                table_html += f"<tr><td style='border: 1px solid pink; padding: 8px;'>{field_name}</td>" \
+                              f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call[field_key])}</td></tr>"
+
+        # Close the table
         table_html += "</table>"
         
         # Return consolidated response
