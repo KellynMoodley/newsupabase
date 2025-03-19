@@ -314,10 +314,10 @@ def get_account_consolidated(account_number):
         for call in call_bi_data:
             table_html += f"<tr><td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.calltype_value)}</td>" \
                 f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.ai_recommendations)}</td>" \
-                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.negligence)}</td>"
-                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.pastcallsummary)}</td>"
-                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.call_strategy)}</td>"
-                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.sentiment_analysis)}</td>"
+                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.negligence)}</td>" \
+                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.pastcallsummary)}</td>" \
+                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.call_strategy)}</td>" \
+                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.sentiment_analysis)}</td>" \
                 f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.tone)}</td></tr>"
         
         table_html += "</table>"
