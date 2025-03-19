@@ -312,17 +312,13 @@ def get_account_consolidated(account_number):
         table_html += "<table style='border-collapse: collapse; margin-bottom: 50px; width: 100%;'><tr><th style='border: 1px solid pink; padding: 8px;'>Call Type</th><th style='border: 1px solid pink; padding: 8px;'>AI Recommendations</th><th style='border: 1px solid pink; padding: 8px;'>Negligence</th><th style='border: 1px solid pink; padding: 8px;'>Past Call Summary</th><th style='border: 1px solid pink; padding: 8px;'>Call Strategy</th><th style='border: 1px solid pink; padding: 8px;'>Sentiment Analysis</th><th style='border: 1px solid pink; padding: 8px;'>Tone</th></tr>"
         
         for call in call_bi_data:
-            table_html += f"
-            <tr>
-                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['calltype_value'])}</td>
-                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['ai_recommendations'])}</td>
-                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['negligence'])}</td>
-                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['pastcallsummary'])}</td>
-                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['call_strategy'])}</td>
-                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['sentiment_analysis'])}</td>
-                <td style='border: 1px solid pink; padding: 8px;'>{escape(call['tone'])}</td>
-            </tr>
-            "
+            table_html += f"<tr><td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.calltype_value)}</td>" \
+                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.ai_recommendations)}</td>" \
+                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.negligence)}</td>"
+                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.pastcallsummary)}</td>"
+                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.call_strategy)}</td>"
+                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.sentiment_analysis)}</td>"
+                f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call.tone)}</td></tr>"
         
         table_html += "</table>"
         
