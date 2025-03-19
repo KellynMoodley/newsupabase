@@ -83,90 +83,296 @@ app.config['SERVERS'] = [
     }
 ]
 
-class CallLogModel:
+class AccountDetailModel:
     def __init__(self, data):
-        self.id = data.get('id')
         self.account_no = data.get('Account_no')
-        self.created_at = data.get('created_at')
-        self.call_type = data.get('CALLTYPE')
-        self.sentiment_analysis = data.get('Sentiment analysis')
-        self.audio_filename = data.get('AUDIOFILENAME2')
-        self.tone = data.get('tone')
-        self.transcriptions = data.get('transcriptions')
+        self.call_inum = data.get('CALL_INUM')  # Added CALL_INUM field
+        self.collections_segment_detail = data.get('Collections_Segment_Detail')
+        self.ptp_ind = data.get('PTP_Ind')
+        self.date_last_payment = data.get('Date_Last_Payment')
+        self.payment_due_date = data.get('Payment_Due_Date')
+        self.last_payment_amount = data.get('Last_Payment_Amount')
+        self.current_balance = data.get('Current_Balance')
+        self.total_amount_due = data.get('Total_amount_due')
+        self.number_broken_ptp = data.get('Number_Broken_PTP')
+        self.instalment = data.get('instalment')
+        self.salary_day_of_month = data.get('Salary_DayofMonth')
+        self.customer_bank_name = data.get('Customer_Bank_Name')
+        self.store_pref_name = data.get('Store_Pref_Name')
+        self.fpd_indicator = data.get('FPD_Indicator')
+        self.pref_payment_method_desc = data.get('Pref_Payment_Method_Desc')
     
     def to_dict(self):
         """
-        Convert CallLogModel to a dictionary for JSON serialization
+        Convert AccountDetailModel to a dictionary for JSON serialization
         """
         return {
-            'id': self.id,
             'account_no': self.account_no,
-            'created_at': str(self.created_at),
-            'call_type': self.call_type,
-            'sentiment_analysis': self.sentiment_analysis,
-            'audio_filename': self.audio_filename,
-            'tone': self.tone,
-            'transcriptions': self.transcriptions
+            'call_inum': self.call_inum,  # Added to response
+            'collections_segment_detail': self.collections_segment_detail,
+            'ptp_ind': self.ptp_ind,
+            'date_last_payment': str(self.date_last_payment) if self.date_last_payment else None,
+            'payment_due_date': str(self.payment_due_date) if self.payment_due_date else None,
+            'last_payment_amount': self.last_payment_amount,
+            'current_balance': self.current_balance,
+            'total_amount_due': self.total_amount_due,
+            'number_broken_ptp': self.number_broken_ptp,
+            'instalment': self.instalment,
+            'salary_day_of_month': self.salary_day_of_month,
+            'customer_bank_name': self.customer_bank_name,
+            'store_pref_name': self.store_pref_name,
+            'fpd_indicator': self.fpd_indicator,
+            'pref_payment_method_desc': self.pref_payment_method_desc
         }
 
-# Add a new route to get call logs by account number
-@app.get('/call-logs/<account_number>')
-@app.auth_required(auth)
-def get_call_logs_by_account(account_number):
-    """
-    Retrieve call logs for a specific account number
+class CallBIModel:
+    def __init__(self, data):
+        self.customfield03 = data.get('CUSTOMFIELD03')  # Foreign key to CALL_INUM
+        self.calltype_value = data.get('CALLTYPE_VALUE')
+        self.ai_recommendations = data.get('AI_recommendations')
+        self.negligence = data.get('negligence')
+        self.followup = data.get('followup')
+        self.call_strategy = data.get('call_strategy')
+        self.sentiment_analysis = data.get('sentiment_analysis')
+        self.tone = data.get('tone')
     
-    :param account_number: The account number to filter call logs
-    :return: JSON response with call logs for the specified account
+    def to_dict(self):
+        """
+        Convert CallBIModel to a dictionary for JSON serialization
+        """
+        return {
+            'customfield03': self.customfield03,
+            'calltype_value': self.calltype_value,
+            'ai_recommendations': self.ai_recommendations,
+            'negligence': self.negligence,
+            'followup': self.followup,
+            'call_strategy': self.call_strategy,
+            'sentiment_analysis': self.sentiment_analysis,
+            'tone': self.tone
+        }
+
+# New endpoint to get account details by account number
+@app.get('/account-details/<account_number>')
+@app.auth_required(auth)
+def get_account_details(account_number):
+    """
+    Retrieve account details for a specific account number
+    
+    :param account_number: The account number to fetch details for
+    :return: JSON response with account details
     """
     try:
-        # Fetch data from Supabase filtered by account number
-        response = supabase.table('Truworthstable') \
+        # Fetch account details from Supabase
+        response = supabase.table('Truworthsaccountdetails') \
             .select('*') \
             .eq('Account_no', account_number) \
             .execute()
         
-        # Check if response is None or doesn't have data
-        if response is None:
-            logging.error(f"No response received from Supabase for account {account_number}")
-            return jsonify({
-                "message": f"No data retrieved for account {account_number}",
-                "error": "Empty response"
-            }), 404
-        
-        # In newer versions of supabase-py, data might be accessed differently
         try:
-            # First try the current method
             data = response.data
         except AttributeError:
-            # If that fails, try accessing data directly
             data = response
-
+        
         # Check if data is empty
         if not data:
-            logging.warning(f"No call logs found for account {account_number}")
+            logging.warning(f"No account details found for account {account_number}")
             return jsonify({
-                "message": f"No call logs found for account {account_number}",
-                "call_logs": []
+                "message": f"No account details found for account {account_number}",
+                "account_details": None
             }), 404
-
-        # Convert Supabase results to CallLogModel and then to dictionaries
-        call_logs = [CallLogModel(item).to_dict() for item in data]
-
-        # Return response with call logs
+        
+        # Convert to model and then to dict
+        account_details = AccountDetailModel(data[0]).to_dict()
+        
         return jsonify({
             "account_number": account_number,
-            "call_logs": call_logs,
-            "message": f"Call logs retrieved successfully for account {account_number}"
+            "account_details": account_details,
+            "message": f"Account details retrieved successfully for account {account_number}"
         })
     
     except Exception as e:
-        logging.error(f"An error occurred while fetching call logs for account {account_number}: {str(e)}")
+        logging.error(f"An error occurred while fetching account details for account {account_number}: {str(e)}")
         return jsonify({
             "message": "An unexpected error occurred",
             "error": str(e)
         }), 500
 
+# New endpoint to get call BI data by customfield03 (call_inum)
+@app.get('/call-bi/<customfield03>')
+@app.auth_required(auth)
+def get_call_bi(customfield03):
+    """
+    Retrieve call BI data for a specific customfield03 (CALL_INUM)
+    
+    :param customfield03: The customfield03 value to match with CALL_INUM
+    :return: JSON response with call BI data
+    """
+    try:
+        # Fetch call BI data from Supabase
+        response = supabase.table('TruworthscallBI') \
+            .select('*') \
+            .eq('CUSTOMFIELD03', customfield03) \
+            .execute()
+        
+        try:
+            data = response.data
+        except AttributeError:
+            data = response
+        
+        # Check if data is empty
+        if not data:
+            logging.warning(f"No call BI data found for customfield03 {customfield03}")
+            return jsonify({
+                "message": f"No call BI data found for customfield03 {customfield03}",
+                "call_bi": []
+            }), 404
+        
+        # Convert to model and then to dict
+        call_bi_data = [CallBIModel(item).to_dict() for item in data]
+        
+        return jsonify({
+            "customfield03": customfield03,
+            "call_bi_data": call_bi_data,
+            "message": f"Call BI data retrieved successfully for customfield03 {customfield03}"
+        })
+    
+    except Exception as e:
+        logging.error(f"An error occurred while fetching call BI data for customfield03 {customfield03}: {str(e)}")
+        return jsonify({
+            "message": "An unexpected error occurred",
+            "error": str(e)
+        }), 500
+
+# New consolidated endpoint to get all data for an account number, using relational link
+@app.get('/account-consolidated/<account_number>')
+@app.auth_required(auth)
+def get_account_consolidated(account_number):
+    """
+    Retrieve all data (account details and related call BI) for a specific account number
+    using the relationship between CALL_INUM and CUSTOMFIELD03
+    
+    :param account_number: The account number to fetch all data for
+    :return: JSON response with consolidated account data
+    """
+    try:
+        # First get account details to find the CALL_INUM value
+        account_details_response = supabase.table('Truworthsaccountdetails') \
+            .select('*') \
+            .eq('Account_no', account_number) \
+            .execute()
+            
+        try:
+            account_details_data = account_details_response.data
+        except AttributeError:
+            account_details_data = account_details_response
+        
+        # Check if account details exist
+        if not account_details_data:
+            logging.warning(f"No account details found for account {account_number}")
+            return jsonify({
+                "message": f"No account details found for account {account_number}",
+                "account_details": None,
+                "call_bi_data": []
+            }), 404
+            
+        # Get the CALL_INUM from account details
+        account_detail = AccountDetailModel(account_details_data[0])
+        call_inum = account_detail.call_inum
+        
+        # If CALL_INUM exists, fetch related call BI data
+        call_bi_data = []
+        if call_inum:
+            call_bi_response = supabase.table('TruworthscallBI') \
+                .select('*') \
+                .eq('CUSTOMFIELD03', call_inum) \
+                .execute()
+                
+            try:
+                bi_data = call_bi_response.data
+            except AttributeError:
+                bi_data = call_bi_response
+                
+            if bi_data:
+                call_bi_data = [CallBIModel(item).to_dict() for item in bi_data]
+        
+        # Return consolidated response
+        return jsonify({
+            "account_number": account_number,
+            "account_details": account_detail.to_dict(),
+            "call_bi_data": call_bi_data,
+            "call_inum": call_inum,
+            "message": f"Consolidated data retrieved successfully for account {account_number}"
+        })
+    
+    except Exception as e:
+        logging.error(f"An error occurred while fetching consolidated data for account {account_number}: {str(e)}")
+        return jsonify({
+            "message": "An unexpected error occurred",
+            "error": str(e)
+        }), 500
+
+# Add an endpoint that allows bi-directional lookup - find account by CUSTOMFIELD03
+@app.get('/account-by-callid/<call_id>')
+@app.auth_required(auth)
+def get_account_by_callid(call_id):
+    """
+    Retrieve account details by finding where CALL_INUM matches the provided call_id
+    
+    :param call_id: The call ID (CALL_INUM/CUSTOMFIELD03) to search for
+    :return: JSON response with account details and related call BI data
+    """
+    try:
+        # Find account details where CALL_INUM matches the call_id
+        account_response = supabase.table('Truworthsaccountdetails') \
+            .select('*') \
+            .eq('CALL_INUM', call_id) \
+            .execute()
+            
+        try:
+            account_data = account_response.data
+        except AttributeError:
+            account_data = account_response
+        
+        # Check if we found an account
+        if not account_data:
+            logging.warning(f"No account found with CALL_INUM {call_id}")
+            return jsonify({
+                "message": f"No account found with CALL_INUM {call_id}",
+                "account_details": None,
+                "call_bi_data": []
+            }), 404
+            
+        # Found account details
+        account_detail = AccountDetailModel(account_data[0])
+        
+        # Get related call BI data
+        call_bi_response = supabase.table('TruworthscallBI') \
+            .select('*') \
+            .eq('CUSTOMFIELD03', call_id) \
+            .execute()
+            
+        try:
+            bi_data = call_bi_response.data
+        except AttributeError:
+            bi_data = call_bi_response
+            
+        call_bi_data = [CallBIModel(item).to_dict() for item in bi_data] if bi_data else []
+        
+        # Return response with both pieces of data
+        return jsonify({
+            "account_number": account_detail.account_no,
+            "call_id": call_id,
+            "account_details": account_detail.to_dict(),
+            "call_bi_data": call_bi_data,
+            "message": f"Account and call BI data retrieved successfully for call ID {call_id}"
+        })
+    
+    except Exception as e:
+        logging.error(f"An error occurred while fetching data for call ID {call_id}: {str(e)}")
+        return jsonify({
+            "message": "An unexpected error occurred",
+            "error": str(e)
+        }), 500
 
 @app.get('/')
 def print_default():
@@ -174,7 +380,7 @@ def print_default():
     Health check
     """
     # Returning a dict equals to using jsonify()
-    return {'message': 'This is the certifications API server'}
+    return {'message': 'This is the Truworths API server for call center data'}
 
 # Main entry point
 if __name__ == '__main__':
