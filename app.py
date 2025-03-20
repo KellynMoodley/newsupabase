@@ -312,23 +312,23 @@ def get_account_consolidated(account_number):
         # Generate HTML table
         table_html = f"<h4 style='font-size: 16px; font-weight: bold; margin-bottom: 5px;'>AI analysis</h4>"
         table_html += "<table style='border-collapse: collapse; margin-bottom: 50px; width: 100%;'>"
-        table_html += "<tr><th style='border: 1px solid pink; padding: 8px;'>Field</th><th style='border: 1px solid pink; padding: 8px;'>Value</th></tr>"
+        table_html += "<tr><th style='border: 1px solid pink; padding: 8px;'>Analysis type</th><th style='border: 1px solid pink; padding: 8px;'>AI outcome</th></tr>"
 
         # Define the fields to display
         fields = [
-            ("Call Type", "calltype_value"),
-            ("AI Recommendations", "ai_recommendations"),
-            ("Negligence", "negligence"),
+            ("Past Call Outcome", "calltype_value"),
             ("Past Call Summary", "pastcallsummary"),
-            ("Call Strategy", "call_strategy"),
-            ("Sentiment Analysis", "sentiment_analysis"),
-            ("Tone", "tone")
+            ("Sentiment Analysis of the last call", "sentiment_analysis"),
+            ("Tone", "tone"),
+            ("Current Call Strategy", "call_strategy"),
+            ("AI Recommendations", "ai_recommendations"),
+            ("Customer default history", "negligence")
         ]
 
         # Loop through each call in call_bi_data
         for call in call_bi_data:
             for field_name, field_key in fields:
-                table_html += f"<tr><td style='border: 1px solid pink; padding: 8px;'>{field_name}</td>" \
+                table_html += f"<tr><td style='border: 1px solid pink; padding: 8px; width: 30%;'>{field_name}</td>" \
                               f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call[field_key])}</td></tr>"
 
         # Close the table
