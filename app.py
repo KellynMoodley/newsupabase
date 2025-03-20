@@ -148,7 +148,7 @@ class CallBIModel:
         def format_text(text):
             if text:
                 # Replace periods with period + newline, but preserve existing line breaks
-                 formatted = text.replace('. ', '.\n')
+                formatted = text.replace('. ', '.\n')
                 formatted = formatted.replace('\n\n', '\n').replace('\n\n', '\n')
                 return formatted
             return text
@@ -163,7 +163,6 @@ class CallBIModel:
             'sentiment_analysis': self.sentiment_analysis,
             'tone': format_text(self.tone)
         }
-
 # New endpoint to get account details by account number
 @app.get('/account-details/<account_number>')
 @app.auth_required(auth)
