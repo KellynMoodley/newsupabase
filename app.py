@@ -147,9 +147,13 @@ class CallBIModel:
         # Helper function to format text with line breaks
         def format_text(text):
             if text:
+                # Trim leading and trailing spaces
+                text = text.strip()
+                # Replace multiple spaces with a single space
+                text = ' '.join(text.split())
                 # Replace periods with period + newline, but preserve existing line breaks
                 formatted = text.replace('. ', '.\n')
-                #formatted = formatted.replace('\n\n', '\n').replace('\n\n', '\n')
+                formatted = formatted.replace('\n\n', '\n').replace('\n\n', '\n')
                 return formatted
             return text
             
