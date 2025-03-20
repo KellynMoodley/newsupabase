@@ -149,7 +149,7 @@ class CallBIModel:
             if text:
                 # Replace periods with period + newline, but preserve existing line breaks
                 formatted = text.replace('. ', '.\n')
-                formatted = formatted.replace('\n\n', '\n').replace('\n\n', '\n')
+                #formatted = formatted.replace('\n\n', '\n').replace('\n\n', '\n')
                 return formatted
             return text
             
