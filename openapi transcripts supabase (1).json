@@ -1,0 +1,461 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Call Logs API for Watson Assistant",
+        "version": "1.0.1",
+        "description": "An API for retrieving call center data from a Supabase database"
+    },
+    "servers": [
+        {
+            "description": "Code Engine deployment",
+            "url": "https://{appname}.{projectid}.{region}.codeengine.appdomain.cloud",
+            "variables": {
+                "appname": {
+                    "default": "myapp",
+                    "description": "application name"
+                },
+                "projectid": {
+                    "default": "projectid",
+                    "description": "the Code Engine project ID"
+                },
+                "region": {
+                    "default": "us-south",
+                    "description": "the deployment region, e.g., us-south"
+                }
+            }
+        },
+        {
+            "description": "local test",
+            "url": "http://127.0.0.1:{port}",
+            "variables": {
+                "port": {
+                    "default": "5000",
+                    "description": "local port to use"
+                }
+            }
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "API_TOKEN",
+                "description": "API key for authentication"
+            }
+        },
+        "schemas": {
+            "AccountDetail": {
+                "type": "object",
+                "properties": {
+                    "account_no": {
+                        "type": "string",
+                        "description": "Account number"
+                    },
+                    "call_inum": {
+                        "type": "string",
+                        "description": "Call identification number"
+                    },
+                    "collections_segment_detail": {
+                        "type": "string",
+                        "description": "Collections segment details"
+                    },
+                    "ptp_ind": {
+                        "type": "string",
+                        "description": "Promise to pay indicator"
+                    },
+                    "date_last_payment": {
+                        "type": "string",
+                        "description": "Date of last payment"
+                    },
+                    "payment_due_date": {
+                        "type": "string",
+                        "description": "Payment due date"
+                    },
+                    "last_payment_amount": {
+                        "type": "number",
+                        "description": "Amount of last payment"
+                    },
+                    "current_balance": {
+                        "type": "number",
+                        "description": "Current balance"
+                    },
+                    "total_amount_due": {
+                        "type": "number",
+                        "description": "Total amount due"
+                    },
+                    "number_broken_ptp": {
+                        "type": "integer",
+                        "description": "Number of broken promises to pay"
+                    },
+                    "instalment": {
+                        "type": "number",
+                        "description": "Instalment amount"
+                    },
+                    "salary_day_of_month": {
+                        "type": "integer",
+                        "description": "Day of month salary is received"
+                    },
+                    "customer_bank_name": {
+                        "type": "string",
+                        "description": "Customer's bank name"
+                    },
+                    "store_pref_name": {
+                        "type": "string",
+                        "description": "Preferred store name"
+                    },
+                    "fpd_indicator": {
+                        "type": "string",
+                        "description": "First payment default indicator"
+                    },
+                    "pref_payment_method_desc": {
+                        "type": "string",
+                        "description": "Preferred payment method description"
+                    }
+                }
+            },
+            "CallBI": {
+                "type": "object",
+                "properties": {
+                    "customfield03": {
+                        "type": "string",
+                        "description": "Foreign key to CALL_INUM"
+                    },
+                    "calltype_value": {
+                        "type": "string",
+                        "description": "Type of call"
+                    },
+                    "ai_recommendations": {
+                        "type": "string",
+                        "description": "AI recommendations"
+                    },
+                    "negligence": {
+                        "type": "string",
+                        "description": "Negligence information"
+                    },
+                    "pastcallsummary": {
+                        "type": "string",
+                        "description": "Summary of past calls"
+                    },
+                    "call_strategy": {
+                        "type": "string",
+                        "description": "Call strategy"
+                    },
+                    "sentiment_analysis": {
+                        "type": "string",
+                        "description": "Sentiment analysis of the call"
+                    },
+                    "tone": {
+                        "type": "string",
+                        "description": "Tone of the call"
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Returns a greeting and confirms the API is running",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This is the Truworths API server for call center data"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/account-details/{account_number}": {
+            "get": {
+                "summary": "Retrieve Account Details",
+                "description": "Fetches account details for a specific account number from the Supabase database",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "account_number",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The account number to retrieve details for"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved account details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "account_number": {
+                                            "type": "string",
+                                            "description": "The account number queried"
+                                        },
+                                        "account_details": {
+                                            "$ref": "#/components/schemas/AccountDetail"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Account details retrieved successfully for account {account_number}"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No account details found for the specified account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No account details found for account {account_number}"
+                                        },
+                                        "account_details": {
+                                            "nullable": true,
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An unexpected error occurred"
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/call-bi/{customfield03}": {
+            "get": {
+                "summary": "Retrieve Call BI Data",
+                "description": "Fetches call BI data for a specific customfield03 (CALL_INUM) from the Supabase database",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "customfield03",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The customfield03 value to match with CALL_INUM"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved call BI data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "customfield03": {
+                                            "type": "string",
+                                            "description": "The customfield03 value queried"
+                                        },
+                                        "call_bi_data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CallBI"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Call BI data retrieved successfully for customfield03 {customfield03}"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No call BI data found for the specified customfield03",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No call BI data found for customfield03 {customfield03}"
+                                        },
+                                        "call_bi": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An unexpected error occurred"
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/account-consolidated/{account_number}": {
+            "get": {
+                "summary": "Retrieve Consolidated Account Data",
+                "description": "Fetches all data (account details and related call BI) for a specific account number",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "account_number",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The account number to retrieve consolidated data for"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved consolidated account data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "account_number": {
+                                            "type": "string",
+                                            "description": "The account number queried"
+                                        },
+                                        "account_details": {
+                                            "$ref": "#/components/schemas/AccountDetail"
+                                        },
+                                        "call_bi_data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CallBI"
+                                            }
+                                        },
+                                        "call_inum": {
+                                            "type": "string",
+                                            "description": "Call identification number"
+                                        },
+                                        "table": {
+                                            "type": "string",
+                                            "description": "HTML table representation of call BI data"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Consolidated data retrieved successfully for account {account_number}"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No account details found for the specified account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No account details found for account {account_number}"
+                                        },
+                                        "account_details": {
+                                            "nullable": true,
+                                            "type": "object"
+                                        },
+                                        "call_bi_data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An unexpected error occurred"
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
