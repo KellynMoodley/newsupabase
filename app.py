@@ -319,7 +319,7 @@ def get_account_consolidated(account_number):
         # Loop through each call in call_bi_data
         for call in call_bi_data:
             for field_name, field_key in fields:
-                table_html += f"<tr><td style='border: 1px solid pink; padding: 8px; width: 30%;'>{field_name}</td>" \
+                table_html += f"<tr><td style='border: 1px solid pink; padding: 8px; width: 20%;'>{field_name}</td>" \
                               f"<td style='border: 1px solid pink; padding: 8px;'>{html.escape(call[field_key])}</td></tr>"
 
         # Close the table
