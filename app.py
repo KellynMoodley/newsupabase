@@ -145,14 +145,15 @@ class CallBIModel:
         Convert CallBIModel to a dictionary for JSON serialization
         """
         
-        'customfield03': self.customfield03,
-        'calltype_value': self.calltype_value,
-        'ai_recommendations': self.ai_recommendations,
-        'negligence': self.negligence,
-        'pastcallsummary':self.pastcallsummary,
-        'call_strategy': self.call_strategy,
-        'sentiment_analysis': self.sentiment_analysis,
-        'tone': self.tone
+        return {
+            'customfield03': self.customfield03,
+            'calltype_value': self.calltype_value,
+            'ai_recommendations': self.ai_recommendations,
+            'negligence': self.negligence,
+            'pastcallsummary': self.pastcallsummary,
+            'call_strategy': self.call_strategy,
+            'sentiment_analysis': self.sentiment_analysis,
+            'tone': self.tone
         }
 
 # New endpoint to get account details by account number
