@@ -146,8 +146,7 @@ class CallBIModel:
         """
         # Helper function to format text with line breaks
         def format_text(text):
-            if text:
-                if text is None:
+            if text is None:
                 return ""  # Return an empty string or any default value
                 # Replace periods with period + newline, but preserve existing line breaks
                 formatted = text.replace('. ', '.\n')
