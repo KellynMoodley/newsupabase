@@ -149,7 +149,7 @@ class CallBIModel:
             if text is None or text == "":
                 text= "NA"  # Return an empty string or any default value
                 # Replace periods with period + newline, but preserve existing line breaks
-            formatted = text.replace('. ', '.\n')
+            formatted = text.replace('. ', '.\n').replace('; ', '.\n')
             formatted = formatted.replace('\n\n', '\n').replace('\n\n', '\n')
             return formatted
 
