@@ -105,6 +105,7 @@ class AccountDetailModel:
         self.store_pref_name = data.get('Store_Pref_Name')
         self.fpd_indicator = data.get('FPD_Indicator')
         self.pref_payment_method_desc = data.get('Pref_Payment_Method_Desc')
+        self.debit_order_present = data.get('debit_order_present')
     
     def to_dict(self):
         """
@@ -126,7 +127,8 @@ class AccountDetailModel:
             'customer_bank_name': self.customer_bank_name,
             'store_pref_name': self.store_pref_name,
             'fpd_indicator': self.fpd_indicator,
-            'pref_payment_method_desc': self.pref_payment_method_desc
+            'pref_payment_method_desc': self.pref_payment_method_desc,
+            'debit_order_present':self.debit_order_present
         }
 
 class CallBIModel:
