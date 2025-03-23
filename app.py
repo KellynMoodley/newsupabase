@@ -152,16 +152,20 @@ class CallBIModel:
             formatted = text.replace('. ', '.\n')
             formatted = formatted.replace('\n\n', '\n').replace('\n\n', '\n')
             return formatted
+
+        # Helper function to handle None values
+        def handle_none(value):
+            return "NA" if value is None else value
             
             
         return {
-            'customfield03': self.customfield03,
-            'calltype_value': self.calltype_value,
+            'customfield03': handle_none(self.customfield03),
+            'calltype_value': handle_none(self.calltype_value),
             'ai_recommendations': format_text(self.ai_recommendations),
             'negligence': format_text(self.negligence),
             'pastcallsummary': format_text(self.pastcallsummary),
             'call_strategy': format_text(self.call_strategy),
-            'sentiment_analysis': self.sentiment_analysis,
+            'sentiment_analysis': handle_none(self.sentiment_analysis),
             'tone': format_text(self.tone)
         }
 # New endpoint to get account details by account number
